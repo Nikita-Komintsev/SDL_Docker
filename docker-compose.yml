@@ -1,0 +1,38 @@
+version: '3'
+services:
+  redis:
+    image: 'redis:alpine'
+    ports:
+      - '6379:6379'
+    healthcheck:
+      test: curl --fail http://localhost || exit 1
+      interval: 60s
+      retries: 5
+      timeout: 10s
+    security_opt:
+      - no-new-privileges:true
+  web:
+    restart: on-failure
+    build: ./web
+    ports:
+      - '81:5000'
+    healthcheck:
+      test: curl --fail http://localhost || exit 1
+      interval: 60s
+      retries: 5
+      timeout: 10s
+    security_opt:
+      - no-new-privileges:true
+  nginx:
+    build: ./nginx
+    ports:
+    - '80:80'
+    depends_on:
+    - web
+    healthcheck:
+      test: curl --fail http://localhost || exit 1
+      interval: 60s
+      retries: 5
+      timeout: 10s
+    security_opt:
+      - no-new-privileges:true
